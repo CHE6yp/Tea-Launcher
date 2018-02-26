@@ -38,8 +38,6 @@ namespace Tea_Launcher
             dataStream.Close();
             response.Close();
 
-
-            //var paths = JsonConvert.DeserializeObject(responseFromServer);
             string[] paths = responseFromServer.Split('!');
 
             Window mainWindow = new Window();
@@ -50,10 +48,14 @@ namespace Tea_Launcher
                     mainWindow = window;
                 }
             }
-            int i = 0;
+
+            (mainWindow as MainWindow).textBox.Clear();
+            
             foreach (string path in paths)
             {
-                (mainWindow as MainWindow).textBox.AppendText(i++.ToString()+path+"\n");
+                (mainWindow as MainWindow).textBox.AppendText(path);
+                if (path != paths.Last())
+                    (mainWindow as MainWindow).textBox.AppendText("\n");
             }
         }
     }
