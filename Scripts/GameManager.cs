@@ -5,16 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
+using System.Windows.Controls;
 using System.Windows;
-using Newtonsoft.Json;
-
 
 namespace Tea_Launcher
 {
     class GameManager
     {
 
-        public static void GetFileNames()
+        public static string[] GetFileNames()
         {
             // Create a request for the URL. 		
             WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/?n=Burger%20Joint");
@@ -38,25 +39,53 @@ namespace Tea_Launcher
             dataStream.Close();
             response.Close();
 
+            //-----------------------
             string[] paths = responseFromServer.Split('!');
+            Array.Resize(ref paths, paths.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
 
-            Window mainWindow = new Window();
-            foreach (Window window in Application.Current.Windows)
+            return paths;
+        }
+
+
+
+        public static void DownloadGame(string host, string username, string password, ref TextBox textBox)
+        {
+            string[] paths = GetFileNames();
+            //string host = @"yourSftpServer.com";
+            //string username = "root";
+            //string password = @"p4ssw0rd";
+
+            // Path to file on SFTP server
+            //string pathRemoteFile = "/var/www/html/Burger Joint/Burger Joint.exe";
+            string pathRemote = "/var/www/html/";
+            // Path where the file should be saved once downloaded (locally)
+            //string pathLocalFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "bg.exe");
+            string pathLocalFile = @"Games\";
+            textBox.Clear();
+
+            using (SftpClient sftp = new SftpClient(host, username, password))
             {
-                if (window.GetType() == typeof(MainWindow))
+                try
                 {
-                    mainWindow = window;
+                    sftp.Connect();
+                    
+                    //Console.WriteLine("Downloading {0}", pathRemoteFile);
+                    foreach (string file in paths)
+                        using (Stream fileStream = File.OpenWrite(pathLocalFile + file.Replace('/', '\\')))
+                        {
+                            textBox.AppendText(file.Replace('/', '\\'));
+                            sftp.DownloadFile(pathRemote + file, fileStream);
+                        }
+
+                    sftp.Disconnect();
+                }
+                catch (Exception er)
+                {
+                    //Console.WriteLine("An exception has been caught " + er.ToString());
+                    MessageBox.Show(er.Message, "An exception has been caught " + er.ToString());
                 }
             }
 
-            (mainWindow as MainWindow).textBox.Clear();
-            
-            foreach (string path in paths)
-            {
-                (mainWindow as MainWindow).textBox.AppendText(path);
-                if (path != paths.Last())
-                    (mainWindow as MainWindow).textBox.AppendText("\n");
-            }
         }
     }
 }

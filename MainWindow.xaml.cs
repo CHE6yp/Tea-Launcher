@@ -25,19 +25,23 @@ namespace Tea_Launcher
             InitializeComponent();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void Download_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void button_Click_1(object sender, RoutedEventArgs e)
-        {
-
+            GameManager.DownloadGame(hostText.Text,usernameText.Text,passwordText.Text, ref textBox);
         }
 
         private void GFN_Click(object sender, RoutedEventArgs e)
         {
-            GameManager.GetFileNames();
+            string[] paths = GameManager.GetFileNames();
+
+            textBox.Clear();
+
+            foreach (string path in paths)
+            {
+                textBox.AppendText(path);
+                if (path != paths.Last())
+                    textBox.AppendText("\n");
+            }
         }
     }
 }
