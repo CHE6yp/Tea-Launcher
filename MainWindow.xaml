@@ -11,9 +11,6 @@
         <Button x:Name="GetFileNames" Content="GetFileNames" HorizontalAlignment="Left" Margin="647,16,0,0" VerticalAlignment="Top" Width="136" Click="GFN_Click" Height="97"/>
         <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Margin="726,380,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="388" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="610" VerticalScrollBarVisibility="Visible"/>
-        <TextBox x:Name="hostText" HorizontalAlignment="Left" Height="30" Margin="647,236,0,0" TextWrapping="Wrap" Text="host" VerticalAlignment="Top" Width="117"/>
-        <TextBox x:Name="usernameText" HorizontalAlignment="Left" Height="30" Margin="647,283,0,0" TextWrapping="Wrap" Text="username" VerticalAlignment="Top" Width="117"/>
-        <TextBox x:Name="passwordText" HorizontalAlignment="Left" Height="30" Margin="647,333,0,0" TextWrapping="Wrap" Text="password" VerticalAlignment="Top" Width="117"/>
 
     </Grid>
 </Window>

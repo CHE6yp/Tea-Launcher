@@ -27,7 +27,7 @@ namespace Tea_Launcher
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-            GameManager.DownloadGame(hostText.Text,usernameText.Text,passwordText.Text, ref textBox);
+            GameManager.DownloadGameAsync(ref textBox);
         }
 
         private void GFN_Click(object sender, RoutedEventArgs e)

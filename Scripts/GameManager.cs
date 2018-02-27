@@ -9,6 +9,7 @@ using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using System.Windows.Controls;
 using System.Windows;
+using System.Threading;
 
 namespace Tea_Launcher
 {
@@ -42,50 +43,94 @@ namespace Tea_Launcher
             //-----------------------
             string[] paths = responseFromServer.Split('!');
             Array.Resize(ref paths, paths.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
+            //Это рано или поздно наебнется, надо както по другому убрать пустой элемент
 
             return paths;
         }
 
 
 
-        public static void DownloadGame(string host, string username, string password, ref TextBox textBox)
+        public static void DownloadGame(ref TextBox textBox)
         {
+            SecretInfo secretInfo = new SecretInfo();
             string[] paths = GetFileNames();
-            //string host = @"yourSftpServer.com";
-            //string username = "root";
-            //string password = @"p4ssw0rd";
 
-            // Path to file on SFTP server
-            //string pathRemoteFile = "/var/www/html/Burger Joint/Burger Joint.exe";
             string pathRemote = "/var/www/html/";
-            // Path where the file should be saved once downloaded (locally)
-            //string pathLocalFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "bg.exe");
+
             string pathLocalFile = @"Games\";
             textBox.Clear();
 
-            using (SftpClient sftp = new SftpClient(host, username, password))
+            using (SftpClient sftp = new SftpClient(secretInfo.host, secretInfo.username, secretInfo.password))
             {
                 try
                 {
                     sftp.Connect();
-                    
-                    //Console.WriteLine("Downloading {0}", pathRemoteFile);
+
                     foreach (string file in paths)
-                        using (Stream fileStream = File.OpenWrite(pathLocalFile + file.Replace('/', '\\')))
+                    {
+                        string winPath = file.Replace('/', '\\');
+                        //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
+                        DirectoryInfo di = Directory.CreateDirectory(pathLocalFile + Path.GetDirectoryName(winPath)); 
+                        using (Stream fileStream = File.OpenWrite(pathLocalFile + winPath))
                         {
-                            textBox.AppendText(file.Replace('/', '\\'));
+                            textBox.AppendText(winPath);
                             sftp.DownloadFile(pathRemote + file, fileStream);
                         }
-
+                    }
                     sftp.Disconnect();
                 }
                 catch (Exception er)
                 {
-                    //Console.WriteLine("An exception has been caught " + er.ToString());
-                    MessageBox.Show(er.Message, "An exception has been caught " + er.ToString());
+                    MessageBox.Show("An exception has been caught " + er.ToString()+"\n"+er.Message,"Error!");
                 }
             }
 
         }
+
+
+        public static void DownloadGameAsync( ref TextBox textBox)
+        {
+            SecretInfo secretInfo = new SecretInfo();
+            string[] paths = GetFileNames();
+
+            string pathRemote = "/var/www/html/";
+
+            string pathLocalFile = @"Games\";
+            TextBox t = textBox;
+            t.Clear();
+
+            Thread myThread = new Thread(delegate () {
+
+                using (SftpClient sftp = new SftpClient(secretInfo.host, secretInfo.username, secretInfo.password))
+                {
+                    try
+                    {
+                        sftp.Connect();
+
+                        foreach (string file in paths)
+                        {
+                            string winPath = file.Replace('/', '\\');
+                            //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
+                            DirectoryInfo di = Directory.CreateDirectory(pathLocalFile + Path.GetDirectoryName(winPath));
+                            using (Stream fileStream = File.OpenWrite(pathLocalFile + winPath))
+                            {
+                                //t.AppendText(winPath+"\n");
+                                sftp.DownloadFile(pathRemote + file, fileStream);
+                            }
+                        }
+                        sftp.Disconnect();
+                    }
+                    catch (Exception er)
+                    {
+                        MessageBox.Show("An exception has been caught " + er.ToString() + "\n" + er.Message, "Error!");
+                    }
+                }
+                MessageBox.Show("Download finished!", "Done");
+            });
+
+            myThread.Start();
+        }
+
+
     }
 }

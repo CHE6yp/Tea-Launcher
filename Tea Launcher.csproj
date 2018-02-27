@@ -64,6 +64,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Scripts\GameManager.cs" />
+    <Compile Include="Scripts\SecretInfoExample.cs" />
+    <Compile Include="Scripts\SecretInfo.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
