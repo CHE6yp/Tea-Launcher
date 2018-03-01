@@ -27,7 +27,12 @@ namespace Tea_Launcher
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-            GameManager.DownloadGameAsync(ref textBox);
+            GameManager.DownloadGameTask();
+        }
+
+        private void DownloadFast_Click(object sender, RoutedEventArgs e)
+        {
+            GameManager.DownloadGameTaskFast();
         }
 
         private void GFN_Click(object sender, RoutedEventArgs e)
@@ -42,6 +47,12 @@ namespace Tea_Launcher
                 if (path != paths.Last())
                     textBox.AppendText("\n");
             }
+        }
+
+        private void Game_Downloading(object sender, EventArgs e)
+        {
+            GameManager.DownloadGameTask();
+            allProgress.Content = "completed";
         }
     }
 }

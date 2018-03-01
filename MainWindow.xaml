@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tea_Launcher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="474.567" Width="817.444">
-    <Grid Margin="0,0,-8,-2">
-        <Button x:Name="button" Content="Download" HorizontalAlignment="Left" Margin="647,118,0,0" VerticalAlignment="Top" Width="136" Click="Download_Click" Height="94"/>
-        <Button x:Name="GetFileNames" Content="GetFileNames" HorizontalAlignment="Left" Margin="647,16,0,0" VerticalAlignment="Top" Width="136" Click="GFN_Click" Height="97"/>
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Margin="726,380,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="388" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="610" VerticalScrollBarVisibility="Visible"/>
-
+        Title="MainWindow" Height="423.567" Width="817.444">
+    <Grid Margin="0,0,-8,-1">
+        <Button x:Name="downloadFast" Content="Download FAST" HorizontalAlignment="Left" Margin="647,10,0,0" VerticalAlignment="Top" Width="136" Click="DownloadFast_Click" Height="94"/>
+        <Button x:Name="downloadSlow" Content="Download" HorizontalAlignment="Left" Margin="647,109,0,0" VerticalAlignment="Top" Width="136" Click="Download_Click" Height="94"/>
+        <Button x:Name="GetFileNames" Content="GetFileNames" HorizontalAlignment="Left" Margin="647,208,0,0" VerticalAlignment="Top" Width="136" Click="GFN_Click" Height="97"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="295" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="610" VerticalScrollBarVisibility="Visible"/>
+        <Label x:Name="fileProgress" Content="FileProgress" HorizontalAlignment="Left" Margin="10,321,0,0" VerticalAlignment="Top" Width="610"/>
+        <Label x:Name="allProgress" Content="AllProgress" HorizontalAlignment="Left" Margin="10,352,0,0" VerticalAlignment="Top" Width="610"/>
     </Grid>
 </Window>

@@ -48,8 +48,6 @@ namespace Tea_Launcher
             return paths;
         }
 
-
-
         public static void DownloadGame(ref TextBox textBox)
         {
             SecretInfo secretInfo = new SecretInfo();
@@ -111,12 +109,15 @@ namespace Tea_Launcher
                         {
                             string winPath = file.Replace('/', '\\');
                             //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
+                            //если директория есть ниче не произойдет
                             DirectoryInfo di = Directory.CreateDirectory(pathLocalFile + Path.GetDirectoryName(winPath));
                             using (Stream fileStream = File.OpenWrite(pathLocalFile + winPath))
                             {
-                                //t.AppendText(winPath+"\n");
                                 sftp.DownloadFile(pathRemote + file, fileStream);
                             }
+                            //Тоже сука костыль, я уверен
+                            Thread.Sleep(300);
+                            GetMainWindow().textBox.AppendText(winPath + "\n");
                         }
                         sftp.Disconnect();
                     }
@@ -131,6 +132,126 @@ namespace Tea_Launcher
             myThread.Start();
         }
 
+        public static async void DownloadGameTask()
+        {
+            SecretInfo secretInfo = new SecretInfo();
+            string[] paths = GetFileNames();
 
+            string pathRemote = "/var/www/html/";
+
+            string pathLocalFile = @"Games\";
+            
+
+            using (SftpClient sftp = new SftpClient(secretInfo.host, secretInfo.username, secretInfo.password))
+            {
+                try
+                {
+                    sftp.Connect();
+                    var tasks = new List<Task>();
+                    
+                    foreach (string file in paths)
+                    {
+                        string winPath = file.Replace('/', '\\');
+                        //tasks.Add(DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp, new Progress<string>(Notify)));
+
+                        await DownloadFileAsync2(pathRemote + file, pathLocalFile + winPath, sftp, new Progress<string>(Notify));
+
+                    }
+                    sftp.Disconnect();
+                }
+                catch (Exception er)
+                {
+                    MessageBox.Show("An exception has been caught " + er.ToString() + "\n" + er.Message, "Error!");
+                }
+            }
+            MessageBox.Show("Download finished!", "Done");
+
+
+
+        }
+
+        public static async void DownloadGameTaskFast()
+        {
+            SecretInfo secretInfo = new SecretInfo();
+            string[] paths = GetFileNames();
+
+            string pathRemote = "/var/www/html/";
+
+            string pathLocalFile = @"Games\";
+
+
+            using (SftpClient sftp = new SftpClient(secretInfo.host, secretInfo.username, secretInfo.password))
+            {
+                try
+                {
+                    sftp.Connect();
+                    var tasks = new List<Task>();
+
+                    foreach (string file in paths)
+                    {
+                        string winPath = file.Replace('/', '\\');
+                        tasks.Add(DownloadFileAsync2(pathRemote + file, pathLocalFile + winPath, sftp, new Progress<string>(Notify)));
+                        
+                        //await DownloadFileAsync2(pathRemote + file, pathLocalFile + winPath, sftp, new Progress<string>(Notify));
+
+                    }
+                    sftp.Disconnect();
+                }
+                catch (Exception er)
+                {
+                    MessageBox.Show("An exception has been caught " + er.ToString() + "\n" + er.Message, "Error!");
+                }
+            }
+            MessageBox.Show("Download finished!", "Done");
+
+
+
+        }
+
+        static void Notify(string msg)
+        {
+            GetMainWindow().textBox.AppendText(msg + "\n");
+        }
+
+        static Task DownloadFileAsync(string source, string destination, SftpClient sftp, IProgress<string> progress)
+        {
+            return Task.Run(() =>
+            {
+                //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
+                //если директория есть ниче не произойдет
+                DirectoryInfo di = Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                using (var saveFile = File.OpenWrite(destination))
+                {
+                    sftp.DownloadFile(source, saveFile);
+                    progress.Report(destination);
+                }
+            });
+        }
+
+        static async Task DownloadFileAsync2(string source, string destination, SftpClient sftp, IProgress<string> progress)
+        {
+            //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
+            //если директория есть ниче не произойдет
+            DirectoryInfo di = Directory.CreateDirectory(Path.GetDirectoryName(destination));
+            using (var saveFile = File.OpenWrite(destination))
+            {
+                var task = Task.Factory.FromAsync(sftp.BeginDownloadFile(source, saveFile), sftp.EndDownloadFile);
+                await task;
+                progress.Report(destination);
+            }
+        }
+
+        public static MainWindow GetMainWindow()
+        {
+            Window mainWindow = new Window();
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window.GetType() == typeof(MainWindow))
+                {
+                    mainWindow = window;
+                }
+            }
+            return (MainWindow)mainWindow;
+        }
     }
 }
