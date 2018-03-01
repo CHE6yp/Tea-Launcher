@@ -33,7 +33,7 @@ namespace Tea_Launcher
             // Read the content.
             string responseFromServer = reader.ReadToEnd();
             // Display the content.
-            
+
             // Cleanup the streams and the response.
             reader.Close();
             dataStream.Close();
@@ -47,7 +47,7 @@ namespace Tea_Launcher
             return paths;
         }
 
-        public static async void DownloadGameTask()
+        public static async void DownloadGameTask(IProgress<string> progress, IProgress<float> progressBar)
         {
             SecretInfo secretInfo = new SecretInfo();
             string[] paths = GetFileNames();
@@ -61,11 +61,14 @@ namespace Tea_Launcher
                 try
                 {
                     sftp.Connect();
-                    
+
+                    int i = 0;
                     foreach (string file in paths)
                     {
                         string winPath = file.Replace('/', '\\');
-                        await DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp, new Progress<string>(Notify));
+                        await DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp);
+                        progress.Report(winPath);
+                        progressBar.Report(++i / (paths.Length / 100));
                     }
                     sftp.Disconnect();
                 }
@@ -77,7 +80,7 @@ namespace Tea_Launcher
             MessageBox.Show("Download finished!", "Done");
         }
 
-        static async Task DownloadFileAsync(string source, string destination, SftpClient sftp, IProgress<string> progress)
+        static async Task DownloadFileAsync(string source, string destination, SftpClient sftp)
         {
             //Создаем директорию, дабы сука ОНО КАЧАЛОСЬ!
             //если директория есть ниче не произойдет
@@ -86,28 +89,7 @@ namespace Tea_Launcher
             {
                 var task = Task.Factory.FromAsync(sftp.BeginDownloadFile(source, saveFile), sftp.EndDownloadFile);
                 await task;
-                progress.Report(destination);
             }
-        }
-
-        //костыль. Надо понять как работает DataBinding
-        public static MainWindow GetMainWindow()
-        {
-            Window mainWindow = new Window();
-            foreach (Window window in Application.Current.Windows)
-            {
-                if (window.GetType() == typeof(MainWindow))
-                {
-                    mainWindow = window;
-                }
-            }
-            return (MainWindow)mainWindow;
-        }
-
-        static void Notify(string msg)
-        {
-            //костыль, основанный на предыдущем костыле
-            GetMainWindow().textBox.AppendText(msg + "\n");
         }
     }
 }
