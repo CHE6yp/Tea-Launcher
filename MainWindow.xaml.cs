@@ -41,21 +41,5 @@ namespace Tea_Launcher
             GameManager.DownloadGameTask(progress, progressBar);
             fileProgress.Content = "Completed!";
         }
-
-
-        private void GFN_Click(object sender, RoutedEventArgs e)
-        {
-            string[] paths = GameManager.GetFileNames();
-
-            textBox.Clear();
-
-            foreach (string path in paths)
-            {
-                textBox.AppendText(path);
-                if (path != paths.Last())
-                    textBox.AppendText("\n");
-            }
-        }
-
     }
 }
