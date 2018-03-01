@@ -27,7 +27,8 @@ namespace Tea_Launcher
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-           
+            fileProgress.Content = "Preparing for download...";
+            allProgress.Value = 0;
             var progressHandler = new Progress<string>(value =>
             {
                 fileProgress.Content = value;
@@ -39,7 +40,6 @@ namespace Tea_Launcher
             var progress = progressHandler as IProgress<string>;
             var progressBar = progressBarHandler as IProgress<float>;
             GameManager.DownloadGameTask(progress, progressBar);
-            fileProgress.Content = "Completed!";
         }
     }
 }

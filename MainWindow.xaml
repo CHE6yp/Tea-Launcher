@@ -5,11 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tea_Launcher"
         mc:Ignorable="d"
-        Title="MainWindow" Height="423.567" Width="817.444">
+        Title="MainWindow" Height="423.567" Width="817.444" Background="White">
     <Grid Margin="0,0,0,0">
-        <Button x:Name="downloadSlow" Content="Download" HorizontalAlignment="Left" Margin="26,300,0,0" VerticalAlignment="Top" Width="136" Click="Download_Click" Height="26"/>
-        <Label x:Name="fileProgress" Content="FileProgress" HorizontalAlignment="Left" Margin="180,300,0,0" VerticalAlignment="Top" Width="600" Panel.ZIndex="1"/>
-        <ProgressBar  x:Name="allProgress" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="600" Margin="180,300,0,0"/>
+        <Button x:Name="downloadSlow" Content="Download" HorizontalAlignment="Left" Margin="26,300,0,0" VerticalAlignment="Top" Width="136" Click="Download_Click" Height="26">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                    <GradientStop Color="#FFBEB4FF" Offset="0"/>
+                    <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                    <GradientStop Color="#FFECECEC" Offset="0.5"/>
+                    <GradientStop Color="#FF9C3A8F" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+        <Label x:Name="fileProgress" Content="FileProgress" HorizontalAlignment="Left" Margin="180,300,0,0" VerticalAlignment="Top" Width="600" Panel.ZIndex="1" Background="{x:Null}"/>
+        <ProgressBar  x:Name="allProgress" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="600" Margin="180,300,0,0" Background="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
         <Label x:Name="Title" Content="Burger Joint" HorizontalAlignment="Left" Margin="26,230,0,0" VerticalAlignment="Top" Height="65" Width="310" FontSize="56" FontFamily="Utsaah"/>
     </Grid>
 </Window>
+    

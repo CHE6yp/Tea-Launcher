@@ -68,7 +68,7 @@ namespace Tea_Launcher
                         string winPath = file.Replace('/', '\\');
                         await DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp);
                         progress.Report(winPath);
-                        progressBar.Report(++i / (paths.Length / 100));
+                        progressBar.Report((++i / paths.Length)*100);
                     }
                     sftp.Disconnect();
                 }
@@ -77,7 +77,8 @@ namespace Tea_Launcher
                     MessageBox.Show("An exception has been caught " + er.ToString() + "\n" + er.Message, "Error!");
                 }
             }
-            MessageBox.Show("Download finished!", "Done");
+            progress.Report("Download complete!");
+            progressBar.Report(0);
         }
 
         static async Task DownloadFileAsync(string source, string destination, SftpClient sftp)
