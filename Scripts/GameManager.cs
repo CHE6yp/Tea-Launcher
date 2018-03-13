@@ -10,6 +10,7 @@ using Renci.SshNet.Sftp;
 using System.Windows.Controls;
 using System.Windows;
 using System.Threading;
+using Tea_Launcher.Models;
 
 namespace Tea_Launcher
 {
@@ -18,7 +19,7 @@ namespace Tea_Launcher
         public static string[] GetFileNames()
         {
             // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/?n=Burger%20Joint");
+            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getfiles/Burger%20Joint");
             // If required by the server, set the credentials.
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
@@ -52,7 +53,7 @@ namespace Tea_Launcher
             SecretInfo secretInfo = new SecretInfo();
             string[] paths = GetFileNames();
 
-            string pathRemote = "/var/www/html/";
+            string pathRemote = "/var/www/html/public/Games/";
 
             string pathLocalFile = @"Games\";
 
@@ -91,6 +92,36 @@ namespace Tea_Launcher
                 var task = Task.Factory.FromAsync(sftp.BeginDownloadFile(source, saveFile), sftp.EndDownloadFile);
                 await task;
             }
+        }
+
+        public static List<Game> GetGamesList()
+        {	
+            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getGames");
+            request.Credentials = CredentialCache.DefaultCredentials;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+
+            Stream dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            //-----------------------
+            string[] titles = responseFromServer.Split('!');
+            Array.Resize(ref titles, titles.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
+            //Это рано или поздно наебнется, надо както по другому убрать пустой элемент
+            List<Game> games = new List<Game>();
+            foreach (string title in titles)
+            {
+                Game game = new Game() { Title = title };
+                games.Add(game);
+            }
+
+
+            return games;
         }
     }
 }

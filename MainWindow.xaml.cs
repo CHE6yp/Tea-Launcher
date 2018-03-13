@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tea_Launcher.Models;
 
 namespace Tea_Launcher
 {
@@ -40,6 +41,21 @@ namespace Tea_Launcher
             var progress = progressHandler as IProgress<string>;
             var progressBar = progressBarHandler as IProgress<float>;
             GameManager.DownloadGameTask(progress, progressBar);
+        }
+
+        private void RefreshGameList_Click(object sender, RoutedEventArgs e)
+        {
+            List<Game> games = GameManager.GetGamesList();
+            foreach (Game game in games)
+            {
+                Button newBtn = new Button();
+
+                newBtn.DataContext = game;
+                newBtn.Content = game.Title;
+                newBtn.Name = game.Title.Replace(' ','_') +"_page";
+
+                GamesList.Children.Add(newBtn);
+            }
         }
     }
 }
