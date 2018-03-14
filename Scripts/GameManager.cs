@@ -16,10 +16,10 @@ namespace Tea_Launcher
 {
     class GameManager
     {
-        public static string[] GetFileNames()
+        public static string[] GetFileNames(string title)
         {
             // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getfiles/Burger%20Joint");
+            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getfiles/"+title);
             // If required by the server, set the credentials.
             request.Credentials = CredentialCache.DefaultCredentials;
             // Get the response.
@@ -48,10 +48,13 @@ namespace Tea_Launcher
             return paths;
         }
 
-        public static async void DownloadGameTask(IProgress<string> progress, IProgress<float> progressBar)
+        public static async void DownloadGameTask(Game game, IProgress<string> progress, IProgress<float> progressBar, IProgress<float> progressBarMax)
         {
             SecretInfo secretInfo = new SecretInfo();
-            string[] paths = GetFileNames();
+            string[] paths = GetFileNames(game.Title);
+            //game.FileCount = paths.Length;
+            //game.DownloadingFile = 0;
+            progressBarMax.Report(paths.Length);
 
             string pathRemote = "/var/www/html/public/Games/";
 
@@ -69,7 +72,9 @@ namespace Tea_Launcher
                         string winPath = file.Replace('/', '\\');
                         await DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp);
                         progress.Report(winPath);
-                        progressBar.Report((++i / paths.Length)*100);
+                        game.DownloadingFile = ++i;
+                        //progressBar.Report((++i / paths.Length)*100);
+                        progressBar.Report(++i);
                     }
                     sftp.Disconnect();
                 }
@@ -79,7 +84,7 @@ namespace Tea_Launcher
                 }
             }
             progress.Report("Download complete!");
-            progressBar.Report(0);
+            //progressBar.Report(0);
         }
 
         static async Task DownloadFileAsync(string source, string destination, SftpClient sftp)
@@ -110,18 +115,27 @@ namespace Tea_Launcher
             response.Close();
 
             //-----------------------
-            string[] titles = responseFromServer.Split('!');
-            Array.Resize(ref titles, titles.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
+            string[] gameRows = responseFromServer.Split('#');
+            Array.Resize(ref gameRows, gameRows.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
             //Это рано или поздно наебнется, надо както по другому убрать пустой элемент
             List<Game> games = new List<Game>();
-            foreach (string title in titles)
+            foreach (string gameRow in gameRows)
             {
-                Game game = new Game() { Title = title };
+                string[] gameParams = gameRow.Split(';');
+                Game game = new Game() { Title = gameParams[0], Description = gameParams[1], Screenshot = gameParams[2], Launcher = gameParams[3] };
                 games.Add(game);
             }
 
 
             return games;
+        }
+
+        public Game JsonToGame(string json)
+        {
+            json = @"{""user"":{""name"":""asdf"",""teamname"":""b"",""email"":""c"",""players"":[""1"",""2""]}}";
+            Game game = new Game();
+
+            return new Game();
         }
     }
 }
