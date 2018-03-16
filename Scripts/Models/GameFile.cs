@@ -8,12 +8,11 @@ namespace Tea_Launcher.Models
 {
     public class GameFile
     {
-        public string Path { get; set; }
+        private string _winPath;
+        private string _unixPath;
+        public string WinPath { get { return _winPath; } set { _winPath = value; _unixPath = value.Replace('\\', '/'); } }
+        public string UnixPath { get { return _unixPath; } set { _unixPath = value; _winPath = value.Replace('/', '\\'); } }
         public string Hash { get; set; }
 
-        public string WinPath()
-        {
-            return Path.Replace('/', '\\');
-        }
     }
 }

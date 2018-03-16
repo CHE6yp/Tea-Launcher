@@ -41,8 +41,8 @@ namespace Tea_Launcher
                     int i = 0;
                     foreach (GameFile gameFile in gameFilesRemote)
                     {
-                        await DownloadFileAsync(pathRemote + gameFile, pathLocalFile + gameFile.WinPath(), sftp);
-                        progress.Report(gameFile.WinPath());
+                        await DownloadFileAsync(pathRemote + gameFile, pathLocalFile + gameFile.WinPath, sftp);
+                        progress.Report(gameFile.WinPath);
                         game.DownloadingFile = ++i;
                         progressBar.Report(++i);
                     }
@@ -126,7 +126,7 @@ namespace Tea_Launcher
             foreach (string file in files)
             {
                 string[] fileParams = file.Split(';');
-                GameFile gameFile = new GameFile() { Path = fileParams[0], Hash = fileParams[1] };
+                GameFile gameFile = new GameFile() { UnixPath = fileParams[0], Hash = fileParams[1] };
                 gameFiles.Add(gameFile);
             }
 
@@ -169,7 +169,7 @@ namespace Tea_Launcher
                 //Console.WriteLine(f);
                 string path = f.Replace("Games\\", "");
                 string hash = CalculateMD5(f);
-                gameFiles.Add(new GameFile() { Path = path, Hash = hash });
+                gameFiles.Add(new GameFile() { WinPath = path, Hash = hash });
             }
             foreach (string d in Directory.GetDirectories(sDir))
             {
