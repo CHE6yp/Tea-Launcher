@@ -11,55 +11,27 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Threading;
 using Tea_Launcher.Models;
+using System.Security.Cryptography;
 
 namespace Tea_Launcher
 {
     class GameManager
     {
-        public static string[] GetFileNames(string title)
-        {
-            // Create a request for the URL. 		
-            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getfiles/"+title);
-            // If required by the server, set the credentials.
-            request.Credentials = CredentialCache.DefaultCredentials;
-            // Get the response.
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-            // Display the status.
-            string SD = response.StatusDescription;
-            // Get the stream containing content returned by the server.
-            Stream dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = reader.ReadToEnd();
-            // Display the content.
-
-            // Cleanup the streams and the response.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-
-            //-----------------------
-            string[] paths = responseFromServer.Split('!');
-            Array.Resize(ref paths, paths.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
-            //Это рано или поздно наебнется, надо както по другому убрать пустой элемент
-
-            return paths;
-        }
-
         public static async void DownloadGameTask(Game game, IProgress<string> progress, IProgress<float> progressBar, IProgress<float> progressBarMax)
         {
-            SecretInfo secretInfo = new SecretInfo();
-            string[] paths = GetFileNames(game.Title);
-            //game.FileCount = paths.Length;
-            //game.DownloadingFile = 0;
-            progressBarMax.Report(paths.Length);
+            List<GameFile> gameFilesRemote = GetGameFilesRemote(game.Title);
+            List<GameFile> gameFilesLocal = new List<GameFile>();
+            DirSearch(@"Games\"+game.Title, ref gameFilesLocal);
+            return;
+
+
+
+
+            progressBarMax.Report(gameFilesRemote.Count);
 
             string pathRemote = "/var/www/html/public/Games/";
-
             string pathLocalFile = @"Games\";
-
+            SecretInfo secretInfo = new SecretInfo();
             using (SftpClient sftp = new SftpClient(secretInfo.host, secretInfo.username, secretInfo.password))
             {
                 try
@@ -67,13 +39,11 @@ namespace Tea_Launcher
                     sftp.Connect();
 
                     int i = 0;
-                    foreach (string file in paths)
+                    foreach (GameFile gameFile in gameFilesRemote)
                     {
-                        string winPath = file.Replace('/', '\\');
-                        await DownloadFileAsync(pathRemote + file, pathLocalFile + winPath, sftp);
-                        progress.Report(winPath);
+                        await DownloadFileAsync(pathRemote + gameFile, pathLocalFile + gameFile.WinPath(), sftp);
+                        progress.Report(gameFile.WinPath());
                         game.DownloadingFile = ++i;
-                        //progressBar.Report((++i / paths.Length)*100);
                         progressBar.Report(++i);
                     }
                     sftp.Disconnect();
@@ -130,12 +100,94 @@ namespace Tea_Launcher
             return games;
         }
 
+        public static List<GameFile> GetGameFilesRemote(string title)
+        {
+		
+            WebRequest request = WebRequest.Create("http://170295.simplecloud.ru/launcher/getGameFiles/" + title); // Create a request for the URL. 
+            request.Credentials = CredentialCache.DefaultCredentials; // If required by the server, set the credentials
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse(); // Get the response.
+
+            string SD = response.StatusDescription; // Display the status
+            Stream dataStream = response.GetResponseStream(); // Get the stream containing content returned by the server
+            StreamReader reader = new StreamReader(dataStream); // Open the stream using a StreamReader for easy access
+            string responseFromServer = reader.ReadToEnd(); // Read the content.
+
+            // Cleanup the streams and the response.
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            //-----------------------
+
+            string[] files = responseFromServer.Split('#');
+            Array.Resize(ref files, files.Length - 1); //убираем последний элемент, он пустой (если я не починил это на бекенде)
+            //Это рано или поздно наебнется, надо както по другому убрать пустой элемент
+            List<GameFile> gameFiles = new List<GameFile>();
+            foreach (string file in files)
+            {
+                string[] fileParams = file.Split(';');
+                GameFile gameFile = new GameFile() { Path = fileParams[0], Hash = fileParams[1] };
+                gameFiles.Add(gameFile);
+            }
+
+            return gameFiles;
+        }
+
+        public static List<GameFile> GetGameFilesLocal(string title)
+        {
+
+            List<GameFile> gameFiles = new List<GameFile>();
+
+
+            return gameFiles;
+        }
+
+        public static string[] CheckGameFilesForDownload(List<GameFile> gameFiles)
+        {
+            return new string[0];
+        }
+
+        public static string[] CheckGameFilesForRemoval(List<GameFile> gameFiles)
+        {
+            return new string[0];
+        }
+
+
+
         public Game JsonToGame(string json)
         {
             json = @"{""user"":{""name"":""asdf"",""teamname"":""b"",""email"":""c"",""players"":[""1"",""2""]}}";
             Game game = new Game();
 
             return new Game();
+        }
+
+        static void DirSearch(string sDir, ref List<GameFile> gameFiles)
+        {
+            foreach (string f in Directory.GetFiles(sDir))
+            {
+                //Console.WriteLine(f);
+                string path = f.Replace("Games\\", "");
+                string hash = CalculateMD5(f);
+                gameFiles.Add(new GameFile() { Path = path, Hash = hash });
+            }
+            foreach (string d in Directory.GetDirectories(sDir))
+            {
+                DirSearch(d, ref gameFiles);
+            }
+
+        }
+
+        static string CalculateMD5(string filename)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filename))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
         }
     }
 }

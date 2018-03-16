@@ -28,8 +28,8 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <StackPanel x:Name="GamesList" HorizontalAlignment="Left" Height="525" VerticalAlignment="Top" Width="214" Margin="0,42,0,0" Background="#FFFCB2FF"/>
-        <Button x:Name="RefreshGameList" Content="Refresh Game List" HorizontalAlignment="Left" VerticalAlignment="Top" Width="214" Height="46" Click="RefreshGameList_Click" Foreground="#D8AE2DBB" FontSize="20" FontFamily="Nyala">
+        <StackPanel x:Name="GamesList" HorizontalAlignment="Left" Height="516" VerticalAlignment="Top" Width="214" Margin="0,51,0,0" Background="#FFFCB2FF"/>
+        <Button x:Name="RefreshGameList" Content="Refresh Game List" HorizontalAlignment="Left" VerticalAlignment="Top" Width="216" Height="46" Click="RefreshGameList_Click" Foreground="#D8AE2DBB" FontSize="20" FontFamily="Nyala">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFF7C88F" Offset="0"/>
