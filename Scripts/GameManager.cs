@@ -19,15 +19,20 @@ namespace Tea_Launcher
     {
         public static async void DownloadGameTask(Game game, IProgress<string> progress, IProgress<float> progressBar, IProgress<float> progressBarMax)
         {
-            List<GameFile> gameFilesRemote = GetGameFilesRemote(game.Title);
-            List<GameFile> gameFilesLocal = new List<GameFile>();
-            DirSearch(@"Games\"+game.Title, ref gameFilesLocal);
-            return;
+
+            List<GameFile>[] filesDownload = CheckGameFiles(game.Title);
+
+            //удаляем лишние файлы
+            progress.Report("Removing garbage...");
+            foreach (GameFile file in filesDownload[0])
+                File.Delete(@"Games\" + file.WinPath);
 
 
+            progressBarMax.Report(filesDownload[1].Count);
 
-
-            progressBarMax.Report(gameFilesRemote.Count);
+            // пока не знаю как прервать async без гемороя, потому отложу эту тему
+            //if (filesDownload[1].Count == 0)
+            //    progress.Report("No update required");
 
             string pathRemote = "/var/www/html/public/Games/";
             string pathLocalFile = @"Games\";
@@ -39,9 +44,9 @@ namespace Tea_Launcher
                     sftp.Connect();
 
                     int i = 0;
-                    foreach (GameFile gameFile in gameFilesRemote)
+                    foreach (GameFile gameFile in filesDownload[1])
                     {
-                        await DownloadFileAsync(pathRemote + gameFile, pathLocalFile + gameFile.WinPath, sftp);
+                        await DownloadFileAsync(pathRemote + gameFile.UnixPath, pathLocalFile + gameFile.WinPath, sftp);
                         progress.Report(gameFile.WinPath);
                         game.DownloadingFile = ++i;
                         progressBar.Report(++i);
@@ -135,23 +140,40 @@ namespace Tea_Launcher
 
         public static List<GameFile> GetGameFilesLocal(string title)
         {
-
             List<GameFile> gameFiles = new List<GameFile>();
-
-
+            DirSearch(@"Games\" + title, ref gameFiles);
             return gameFiles;
         }
 
-        public static string[] CheckGameFilesForDownload(List<GameFile> gameFiles)
+        public static List<GameFile>[] CheckGameFiles(string title)
         {
-            return new string[0];
-        }
+            List<GameFile> remote = GetGameFilesRemote(title);
+            List<GameFile> local = GetGameFilesLocal(title);
+            List<GameFile> remove = new List<GameFile>();
 
-        public static string[] CheckGameFilesForRemoval(List<GameFile> gameFiles)
-        {
-            return new string[0];
-        }
+            bool flag;
+            foreach (GameFile l in local)
+            {
+                flag = false;
+                foreach (GameFile r in remote)
+                {
+                    if (l.UnixPath == r.UnixPath)
+                    {
+                        if (l.Hash == r.Hash)
+                            remote.Remove(r);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag)
+                    remove.Add(l);
 
+            }
+            List<GameFile>[] files = new List<GameFile>[2];
+            files[0] = remove; //локальные файлы, которые надо удалить
+            files[1] = remote; //серверные файлы, которые надо скачаеш :@
+            return files;
+        }
 
 
         public Game JsonToGame(string json)
