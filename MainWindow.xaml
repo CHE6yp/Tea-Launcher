@@ -8,7 +8,11 @@
         mc:Ignorable="d"
         Title="Tea Launcher" Height="596.567" Width="1055.444" Background="White">
     <Grid Margin="0,0,0,0" Background="#FF68596C" RenderTransformOrigin="0.5,0.5">
-        <Button x:Name="DownloadButton" Content="Download" HorizontalAlignment="Left" Margin="242,516,0,0" VerticalAlignment="Top" Width="139" Click="Download_Click" Height="26">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="277*"/>
+            <ColumnDefinition Width="770*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="DownloadButton" Content="Download" HorizontalAlignment="Left" Margin="242,516,0,0" VerticalAlignment="Top" Width="139" Click="Download_Click" Height="26" Grid.ColumnSpan="2">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFBEB4FF" Offset="0"/>
@@ -18,9 +22,9 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <Label x:Name="fileProgress" Content="FileProgress" HorizontalAlignment="Left" Margin="400,516,0,0" VerticalAlignment="Top" Width="620" Panel.ZIndex="1" Background="{x:Null}"/>
-        <ProgressBar  x:Name="allProgress" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="620" Margin="400,516,0,0" Background="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
-        <Label x:Name="Title" Content="Game Title" HorizontalAlignment="Left" Margin="242,47,0,0" VerticalAlignment="Top" Height="64" Width="778" FontSize="48" FontFamily="Trajan Pro 3">
+        <Label x:Name="fileProgress" Content="FileProgress" HorizontalAlignment="Left" Margin="123,516,0,0" VerticalAlignment="Top" Width="620" Panel.ZIndex="1" Background="{x:Null}" Grid.Column="1"/>
+        <ProgressBar  x:Name="allProgress" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="620" Margin="123,516,0,0" Background="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" Grid.Column="1"/>
+        <Label x:Name="Title" Content="Game Title" HorizontalAlignment="Left" Margin="242,47,0,0" VerticalAlignment="Top" Height="64" Width="778" FontSize="48" FontFamily="Trajan Pro 3" Grid.ColumnSpan="2">
             <Label.Foreground>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FFFD20AD" Offset="0"/>
@@ -28,7 +32,7 @@
                 </LinearGradientBrush>
             </Label.Foreground>
         </Label>
-        <StackPanel x:Name="GamesList" HorizontalAlignment="Left" Height="516" VerticalAlignment="Top" Width="214" Margin="0,51,0,0" Background="#FFFCB2FF"/>
+        <StackPanel x:Name="GamesList" HorizontalAlignment="Left" Height="516" VerticalAlignment="Top" Width="214" Margin="0,51,0,0" Background="#FFFCB2FF" Loaded="GamesList_Loaded"/>
         <Button x:Name="RefreshGameList" Content="Refresh Game List" HorizontalAlignment="Left" VerticalAlignment="Top" Width="216" Height="46" Click="RefreshGameList_Click" Foreground="#D8AE2DBB" FontSize="20" FontFamily="Nyala">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
@@ -39,9 +43,9 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <TextBlock x:Name="Description" HorizontalAlignment="Left" Margin="275,111,0,0" TextWrapping="Wrap" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." VerticalAlignment="Top" Height="330" Width="362" FontSize="20" Foreground="#FFFEE4FF"/>
-        <Image x:Name="Screenshot" HorizontalAlignment="Left" Height="226" VerticalAlignment="Top" Width="344" Margin="676,120,0,0"/>
-        <Button x:Name="PlayButton" Content="Play" HorizontalAlignment="Left" Margin="242,466,0,0" VerticalAlignment="Top" Width="139" Click="Play_Click" Height="45">
+        <TextBlock x:Name="Description" HorizontalAlignment="Left" Margin="242,111,0,0" TextWrapping="Wrap" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." VerticalAlignment="Top" Height="330" Width="362" FontSize="20" Foreground="#FFFEE4FF" Grid.ColumnSpan="2"/>
+        <Image x:Name="Screenshot" HorizontalAlignment="Left" Height="226" VerticalAlignment="Top" Width="344" Margin="399,120,0,0" Grid.Column="1"/>
+        <Button x:Name="PlayButton" Content="Play" HorizontalAlignment="Left" Margin="242,466,0,0" VerticalAlignment="Top" Width="139" Click="Play_Click" Height="45" Grid.ColumnSpan="2">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FFBEB4FF" Offset="0"/>
@@ -57,5 +61,24 @@
 
 
     </Grid>
+    <Window.Resources>
+        <!--A Style that affects all TextBlocks-->
+        <Style TargetType="Button">
+            <Setter Property ="Height" Value="45" />
+
+            <Setter Property="FontFamily" Value="Nyala"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property ="Background">
+                <Setter.Value>
+                    <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                        <GradientStop Color="#FFBEB4FF" Offset="0"/>
+                        <GradientStop Color="#FFEBEBEB" Offset="0.5"/>
+                        <GradientStop Color="#FFECECEC" Offset="0.5"/>
+                        <GradientStop Color="#FF9C3A8F" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 </Window>
     

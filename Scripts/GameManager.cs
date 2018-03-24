@@ -186,6 +186,7 @@ namespace Tea_Launcher
 
         static void DirSearch(string sDir, ref List<GameFile> gameFiles)
         {
+            DirectoryInfo di = Directory.CreateDirectory(sDir);
             foreach (string f in Directory.GetFiles(sDir))
             {
                 //Console.WriteLine(f);

@@ -90,6 +90,11 @@ namespace Tea_Launcher
 
         private void RefreshGameList_Click(object sender, RoutedEventArgs e)
         {
+            RefreshGameListFunc();
+        }
+
+        private void RefreshGameListFunc()
+        {
             GamesList.Children.Clear();
             List<Game> games = GameManager.GetGamesList();
             foreach (Game game in games)
@@ -100,9 +105,9 @@ namespace Tea_Launcher
                 bind.Path = new PropertyPath("Title");
                 //bind.Mode = BindingMode.TwoWay;
                 //bind.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-                
+
                 BindingOperations.SetBinding(newBtn, ContentProperty, bind);
-                newBtn.Name = game.Title.Replace(' ','_') +"_page";
+                newBtn.Name = game.Title.Replace(' ', '_') + "_page";
                 newBtn.Click += ChooseGame;
 
                 GamesList.Children.Add(newBtn);
@@ -113,7 +118,19 @@ namespace Tea_Launcher
         {
             Button button = (Button)sender;
             Game game = (Game)button.DataContext;
-            Process.Start("Games\\" + game.Title + "\\" + game.Launcher);
+            try
+            {
+                Process.Start("Games\\" + game.Title + "\\" + game.Launcher);
+            }
+            catch
+            {
+                MessageBox.Show("Не вариант запустить! Чето не то!");
+            }
+        }
+
+        private void GamesList_Loaded(object sender, RoutedEventArgs e)
+        {
+            RefreshGameListFunc();
         }
     }
 }
